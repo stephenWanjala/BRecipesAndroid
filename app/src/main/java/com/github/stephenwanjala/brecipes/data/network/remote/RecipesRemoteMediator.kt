@@ -33,6 +33,8 @@ class RecipesRemoteMediator(
                     (state.pages.size + 1)
                 }
             }
+            println("page: $page")
+            println("pageSize: ${state.config.pageSize}")
 
             val response = recipesApi.getRecipes(page = page, limit = state.config.pageSize)
             when (response) {

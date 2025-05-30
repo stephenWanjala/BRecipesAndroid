@@ -73,6 +73,7 @@ dependencies {
 
 
     implementation(libs.bundles.ktor)
+    implementation(libs.coil.network.ktor3)
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 

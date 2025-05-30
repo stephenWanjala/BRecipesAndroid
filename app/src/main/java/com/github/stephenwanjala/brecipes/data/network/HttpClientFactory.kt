@@ -39,6 +39,7 @@ object HttpClientFactory {
                 headers {
                     append("x-api-key", BuildConfig.API_KEY)
                 }
+                this.headers. append("x-api-key", BuildConfig.API_KEY)
             }
         }
     }
