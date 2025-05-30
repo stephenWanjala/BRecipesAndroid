@@ -24,7 +24,15 @@ data class RecipeEntity(
     val ingredients: List<String>,
     val method: List<String>,
 )
-
+@Entity
+data class PaginationEntity(
+    @PrimaryKey
+    val id: String,
+    val page: Int,
+    val limit: Int,
+    val total: Int,
+    val totalPages: Int
+)
 
 class ListStringTypeConverter {
     @TypeConverter

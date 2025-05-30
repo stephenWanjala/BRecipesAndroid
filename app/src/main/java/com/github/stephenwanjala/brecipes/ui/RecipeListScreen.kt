@@ -40,10 +40,6 @@ fun RecipeListScreen(
             val viewModel = hiltViewModel<RecipeViewModel>()
             val recipes = viewModel.recipePagingFlow.collectAsLazyPagingItems()
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                if (recipes.loadState.refresh is LoadState.Loading) {
-                    CircularWavyProgressIndicator()
-                }
-
                 LazyColumn(
                     contentPadding = paddingValues,
                     modifier = Modifier
@@ -59,6 +55,17 @@ fun RecipeListScreen(
                             )
                         }
                     }
+                    item {
+                        if (recipes.loadState.append is LoadState.Loading) {
+                            CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    }
+                }
+                if (recipes.loadState.refresh is LoadState.Loading) {
+                    CircularWavyProgressIndicator(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    )
                 }
 
             }

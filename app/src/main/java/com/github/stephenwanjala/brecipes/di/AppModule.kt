@@ -49,7 +49,7 @@ object AppModule {
         recipeDatabase: RecipeDatabase
     ): Pager<Int, RecipeEntity> {
         return Pager(
-            config = PagingConfig(pageSize = 10),
+            config = PagingConfig(pageSize = 20),
             remoteMediator = RecipesRemoteMediator(
                 recipesApi = recipesApi,
                 recipesDb = recipeDatabase

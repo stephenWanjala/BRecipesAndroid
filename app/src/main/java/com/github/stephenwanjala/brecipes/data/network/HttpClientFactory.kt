@@ -36,9 +36,6 @@ object HttpClientFactory {
             }
             defaultRequest {
                 contentType(ContentType.Application.Json)
-                headers {
-                    append("x-api-key", BuildConfig.API_KEY)
-                }
                 this.headers. append("x-api-key", BuildConfig.API_KEY)
             }
         }

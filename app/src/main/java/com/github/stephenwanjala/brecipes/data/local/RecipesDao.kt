@@ -19,3 +19,20 @@ interface RecipesDao {
 
 
 }
+
+
+@Dao
+interface PaginationDao{
+    @Upsert
+    suspend fun upsertPagination(pagination: PaginationEntity)
+
+    @Query("SELECT * FROM paginationentity WHERE id = :id")
+    suspend fun getPagination(id: String): PaginationEntity?
+
+    @Query("DELETE FROM paginationentity")
+    suspend fun clearAll()
+
+    @Query("DELETE FROM paginationentity WHERE id = :id")
+    suspend fun deletePagination(id: String)
+
+}
