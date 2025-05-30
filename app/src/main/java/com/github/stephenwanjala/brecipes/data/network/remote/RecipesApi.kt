@@ -16,17 +16,20 @@ class RecipesApi @Inject constructor(private val client: HttpClient) {
         cuisine: String? = null
     ): Result<RecipeResponse, NetworkError> {
 
-            val url = constructUrl("api/recipes")
-            val result = safeCall<RecipeResponse> {
-                client.get(urlString = url) {
-                    parameter("page", page)
-                    parameter("limit", limit)
+        val url = constructUrl("api/recipes")
+        val result = safeCall<RecipeResponse> {
+            client.get(urlString = url) {
+                parameter("page", page)
+                parameter("limit", limit)
+                if (cuisine != null) {
                     parameter("cuisine", cuisine)
+
                 }
             }
-          return  when (result) {
-                is Result.Success -> Result.Success(result.data)
-                is Result.Error -> Result.Error(result.error)
-            }
+        }
+        return when (result) {
+            is Result.Success -> Result.Success(result.data)
+            is Result.Error -> Result.Error(result.error)
+        }
     }
 }
