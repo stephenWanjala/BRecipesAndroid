@@ -11,7 +11,8 @@ import kotlinx.serialization.Serializable
 
 @Composable
 fun BRecipesNav(modifier: Modifier = Modifier, navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.RecipeListDestination) {
+    NavHost(navController = navController, startDestination = Screen.RecipeListDestination,
+        modifier = modifier) {
         composable<Screen.RecipeListDestination> {
             RecipeListScreen(onRecipeClick = { recipeId ->
 
