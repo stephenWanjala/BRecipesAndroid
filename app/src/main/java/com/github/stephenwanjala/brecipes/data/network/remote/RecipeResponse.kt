@@ -10,7 +10,7 @@ data class RecipeResponse(
 
 @Serializable
 data class RecipeDto(
-    val id: String,
+    val id: Int,
     val title: String,
     val description: String?,
     val cuisine: String,

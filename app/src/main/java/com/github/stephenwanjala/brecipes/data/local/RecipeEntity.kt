@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 @TypeConverters(ListStringTypeConverter::class)
 data class RecipeEntity(
     @PrimaryKey
-    val id: String,
+    val id: Int,
     val title: String,
     val description: String?,
     val cuisine: String,

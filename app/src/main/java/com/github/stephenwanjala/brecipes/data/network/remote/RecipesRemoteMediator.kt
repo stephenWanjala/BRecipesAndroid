@@ -15,11 +15,11 @@ import kotlinx.coroutines.withContext
 class RecipesRemoteMediator(
     private val recipesApi: RecipesApi,
     private val recipesDb: RecipeDatabase,
-) : RemoteMediator<String, RecipeEntity>() {
+) : RemoteMediator<Int, RecipeEntity>() {
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<String, RecipeEntity>
+        state: PagingState<Int, RecipeEntity>
     ): MediatorResult = withContext(Dispatchers.IO) {
         try {
             val page = when (loadType) {

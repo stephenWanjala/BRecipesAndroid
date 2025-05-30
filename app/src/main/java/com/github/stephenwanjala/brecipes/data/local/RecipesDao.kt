@@ -12,7 +12,7 @@ interface RecipesDao {
     suspend fun upsertAll(recipes: List<RecipeEntity>)
 
     @Query("SELECT * FROM recipeentity")
-    suspend fun pagingSource(): PagingSource<String, RecipeEntity>
+     fun pagingSource(): PagingSource<Int, RecipeEntity>
 
     @Query("DELETE FROM recipeentity")
     suspend fun clearAll()
