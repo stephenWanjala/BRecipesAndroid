@@ -92,6 +92,7 @@ import coil3.request.error
 import coil3.request.placeholder
 import com.github.stephenwanjala.brecipes.R
 import com.github.stephenwanjala.brecipes.domain.Recipe
+import com.github.stephenwanjala.brecipes.ui.RecipeUtils
 import com.github.stephenwanjala.brecipes.ui.RecipesState
 import kotlinx.coroutines.launch
 
@@ -151,7 +152,7 @@ fun RecipeDetailsScreen(
                                 Image(
                                     painter = rememberAsyncImagePainter(
                                         ImageRequest.Builder(LocalContext.current)
-                                            .data("https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/${selectedRecipe.image}")
+                                            .data("${RecipeUtils.IMAGES_BASE_URL}${selectedRecipe.image}")
                                             .crossfade(true)
                                             .error(R.drawable.logo)
                                             .placeholder(R.drawable.logo)

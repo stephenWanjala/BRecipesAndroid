@@ -97,7 +97,7 @@ fun RecipeCard(
     ) {
         val painter = rememberAsyncImagePainter(
             ImageRequest.Builder(LocalContext.current)
-                .data("https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/${recipe.image}")
+                .data("${RecipeUtils.IMAGES_BASE_URL}${recipe.image}")
                 .crossfade(true)
                 .error(R.drawable.img_err)
                 .placeholder(R.drawable.img_err)
