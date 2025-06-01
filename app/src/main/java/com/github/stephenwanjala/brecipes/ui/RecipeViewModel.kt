@@ -44,7 +44,7 @@ class RecipeViewModel @Inject constructor(
                 }
             }
 
-            RecipeAction.OnNavigateUp -> _state.update { it.copy(selectedRecipe = null) }
+            RecipeAction.OnNavigateUp -> _state.update { it.copy(selectedRecipe = null, selectedTabIndex = 0) }
         }
     }
 
