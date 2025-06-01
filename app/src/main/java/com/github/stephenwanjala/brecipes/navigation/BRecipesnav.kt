@@ -13,11 +13,11 @@ import kotlinx.serialization.Serializable
 fun BRecipesNav(modifier: Modifier = Modifier, navController: NavHostController) {
 
     NavHost(
-        navController = navController, startDestination = Screen.RecipeListDestination,
+        navController = navController, startDestination = Screen.RecipeListDetailDestination,
         modifier = modifier
     ) {
 
-        composable<Screen.RecipeListDestination> {
+        composable<Screen.RecipeListDetailDestination> {
             RecipeListDetailScreen()
         }
     }
@@ -26,9 +26,6 @@ fun BRecipesNav(modifier: Modifier = Modifier, navController: NavHostController)
 
 sealed interface Screen {
     @Serializable
-    data object RecipeListDestination : Screen
-
-    @Serializable
-    object RecipeDetailDestination : Screen
+    data object RecipeListDetailDestination : Screen
 
 }
