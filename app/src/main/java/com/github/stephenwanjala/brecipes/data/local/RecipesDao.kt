@@ -14,6 +14,9 @@ interface RecipesDao {
     @Query("SELECT * FROM recipeentity")
      fun pagingSource(): PagingSource<Int, RecipeEntity>
 
+     @Query("SELECT * FROM recipeentity WHERE id = :id")
+     suspend fun getRecipeById(id: Int): RecipeEntity?
+
     @Query("DELETE FROM recipeentity")
     suspend fun clearAll()
 

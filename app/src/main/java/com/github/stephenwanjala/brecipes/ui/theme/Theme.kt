@@ -126,7 +126,7 @@ fun BRecipesTheme(
 
 
 
-    MaterialExpressiveTheme(
+    MaterialExpressiveTheme (
         colorScheme = colorScheme,
         typography = Typography,
         content = content

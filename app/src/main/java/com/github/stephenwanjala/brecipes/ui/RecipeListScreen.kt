@@ -38,18 +38,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.github.stephenwanjala.brecipes.domain.Recipe
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RecipeListScreen(
-    onRecipeClick: (Int) -> Unit
+    onRecipeClick: (Int) -> Unit,
+    recipes: LazyPagingItems<Recipe>
 ) {
     val lazyListState = rememberLazyListState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val coroutineScope = rememberCoroutineScope()
-    val viewModel = hiltViewModel<RecipeViewModel>()
-    val recipes = viewModel.recipePagingFlow.collectAsLazyPagingItems()
+
 
 
     val showFab by remember {

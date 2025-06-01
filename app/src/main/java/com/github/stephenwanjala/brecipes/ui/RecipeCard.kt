@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,10 +41,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.request.error
+import coil3.request.placeholder
+import com.github.stephenwanjala.brecipes.R
 import com.github.stephenwanjala.brecipes.domain.Recipe
 import com.github.stephenwanjala.brecipes.ui.theme.BRecipesTheme
 
@@ -75,11 +84,19 @@ fun RecipeCard(
         ),
         shape = MaterialTheme.shapes.medium
     ) {
+        val painter = rememberAsyncImagePainter(
+            ImageRequest.Builder(LocalContext.current)
+                .data("https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/${recipe.image}")
+                .crossfade(true)
+                .error(R.drawable.img_err)
+                .placeholder(R.drawable.img_err)
+                .build()
+        )
         Box {
-            AsyncImage(
-                model = "https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/${recipe.image}",
+            Image(
+                painter=painter,
                 contentDescription = recipe.title,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16/9f)
