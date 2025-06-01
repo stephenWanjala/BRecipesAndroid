@@ -22,7 +22,7 @@ fun RecipeListDetailScreen(
     viewModel: RecipeViewModel = hiltViewModel(),
 ) {
     val navigator = rememberListDetailPaneScaffoldNavigator<Recipe>()
-    val state = viewModel.state.collectAsStateWithLifecycle()
+    val recipeState = viewModel.state.collectAsStateWithLifecycle()
     val recipes = viewModel.recipePagingFlow.collectAsLazyPagingItems<Recipe>()
     val scope = rememberCoroutineScope()
     val adaptiveInfo = currentWindowAdaptiveInfo()
@@ -33,33 +33,34 @@ fun RecipeListDetailScreen(
         listPane = {
             AnimatedPane {
                 RecipeListScreen(
-                    onRecipeClick = { recipeId ->
-                        viewModel.onAction(RecipeAction.OnSelectRecipe(recipeId))
+                    onRecipeClick = { recipe ->
+                        viewModel.onAction(RecipeAction.OnSelectRecipe(recipe.id))
                         scope.launch {
-                            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, recipe)
                         }
                     },
-                    recipes = recipes
+                    recipes = recipes,
+                    selectedRecipe = recipeState.value.selectedRecipe
                 )
 
             }
         },
         detailPane = {
             AnimatedPane {
-                RecipeDetailsScreen(
-                    onNavigateBack = {
-                        scope.launch {
-                            viewModel.onAction(RecipeAction.OnNavigateUp)
-                            navigator.navigateBack()
-                        }
-                    },
-                    state = state.value,
-                    canShowAppBar = canShowAppbar,
-                    onShareRecipe = {},
-                    setSelectedTabIndex = {
-                        viewModel.setSelectedTabIndex(it)
-                    }
-                )
+                navigator.currentDestination?.contentKey?.let { recipe ->
+                    RecipeDetailsScreen(
+                        onNavigateBack = {
+                            scope.launch {
+                                viewModel.onAction(RecipeAction.OnNavigateUp)
+                                navigator.navigateTo(ListDetailPaneScaffoldRole.List)
+                            }
+                        },
+                        selectedRecipe = recipe,
+                        canShowAppBar = canShowAppbar,
+                        onShareRecipe = {},
+                    )
+
+                }
 
             }
         }

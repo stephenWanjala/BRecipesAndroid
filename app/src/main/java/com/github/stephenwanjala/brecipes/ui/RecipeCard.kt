@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,7 +60,8 @@ import com.github.stephenwanjala.brecipes.ui.theme.BRecipesTheme
 @Composable
 fun RecipeCard(
     recipe: Recipe,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isSelected: Boolean
 ) {
     var isFavorite by remember { mutableStateOf(recipe.isFavorite) }
     val scale by animateFloatAsState(
@@ -77,6 +79,15 @@ fun RecipeCard(
 
     Card(
         modifier = Modifier
+            .then(
+                if (isSelected) {
+                    Modifier.border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                } else Modifier
+                )
             .fillMaxWidth()
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(
@@ -200,6 +211,6 @@ private fun PreviewRecipeCard() {
                 "Have fun while you cook!"
             ),
         )
-        RecipeCard(recipe = recipe, onClick = {})
+        RecipeCard(recipe = recipe, onClick = {},isSelected = true)
     }
 }

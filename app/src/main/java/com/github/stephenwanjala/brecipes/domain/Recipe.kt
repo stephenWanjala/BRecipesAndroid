@@ -1,5 +1,10 @@
 package com.github.stephenwanjala.brecipes.domain
 
+import android.os.Parcelable
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Recipe(
     val id: Int,
     val title: String,
@@ -14,6 +19,7 @@ data class Recipe(
     val ingredientsDesc: List<String>,
     val ingredients: List<String>,
     val method: List<String>,
-){
+) : Parcelable {
+    @IgnoredOnParcel
     val isFavorite:Boolean = false
 }

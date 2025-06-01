@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -34,19 +35,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import androidx.window.core.layout.WindowSizeClass
 import com.github.stephenwanjala.brecipes.domain.Recipe
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RecipeListScreen(
-    onRecipeClick: (Int) -> Unit,
-    recipes: LazyPagingItems<Recipe>
+    onRecipeClick: (Recipe) -> Unit,
+    recipes: LazyPagingItems<Recipe>,
+    selectedRecipe: Recipe?,
 ) {
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+    val isPhone =!adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
     val lazyListState = rememberLazyListState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val coroutineScope = rememberCoroutineScope()
@@ -72,10 +78,14 @@ fun RecipeListScreen(
                 CenterAlignedTopAppBar(
                     title = { Text(text = "Recipes") },
                     scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent
+                    )
                 )
             },
             floatingActionButton = {
-                AnimatedVisibility(showFab) {
+                AnimatedVisibility(showFab && isPhone) {
                     FloatingActionButton(
                         onClick = {
                             coroutineScope.launch {
@@ -113,7 +123,8 @@ fun RecipeListScreen(
                         if (recipe != null) {
                             RecipeCard(
                                 recipe = recipe,
-                                onClick = { onRecipeClick(recipe.id) }
+                                onClick = { onRecipeClick(recipe) },
+                                isSelected = selectedRecipe?.id == recipe.id
                             )
                         }
                     }

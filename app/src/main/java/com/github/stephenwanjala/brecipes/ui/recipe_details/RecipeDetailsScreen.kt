@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -29,6 +30,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Restaurant
@@ -39,6 +41,9 @@ import androidx.compose.material.icons.outlined.RestaurantMenu
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FloatingToolbarDefaults.ScreenOffset
+import androidx.compose.material3.FloatingToolbarDefaults.floatingToolbarVerticalNestedScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -52,6 +57,7 @@ import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.VerticalFloatingToolbar
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +66,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,8 +101,7 @@ fun RecipeDetailsScreen(
     onNavigateBack: () -> Unit,
     onShareRecipe: () -> Unit,
     canShowAppBar: Boolean,
-    state: RecipesState,
-    setSelectedTabIndex: (Int) -> Unit
+    selectedRecipe: Recipe?,
 ) {
     BackHandler {
         onNavigateBack()
@@ -110,7 +116,7 @@ fun RecipeDetailsScreen(
         label = "favorite-scale"
     )
     val tabs = listOf("OverView", "Ingredients", "Instructions")
-    val selectedIndex = state.selectedTabIndex
+    val selectedIndex = remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
     val favoriteColor by animateColorAsState(
@@ -118,24 +124,25 @@ fun RecipeDetailsScreen(
         label = "favorite-color"
     )
     LaunchedEffect(pagerState.currentPage) {
-        setSelectedTabIndex(pagerState.currentPage)
+        selectedIndex.intValue = pagerState.currentPage
     }
     val topBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         state = topBarState,
         canScroll = { true }
     )
+    var expanded by rememberSaveable { mutableStateOf(false) }
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
     ) {
 
 
-        if (state.selectedRecipe != null) {
+        if (selectedRecipe != null) {
             Scaffold(
                 topBar = {
                     AnimatedVisibility(canShowAppBar) {
-                        if (selectedIndex == 0) {
+                        if (selectedIndex.intValue == 0) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -144,13 +151,13 @@ fun RecipeDetailsScreen(
                                 Image(
                                     painter = rememberAsyncImagePainter(
                                         ImageRequest.Builder(LocalContext.current)
-                                            .data("https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/${state.selectedRecipe.image}")
+                                            .data("https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/${selectedRecipe.image}")
                                             .crossfade(true)
                                             .error(R.drawable.logo)
                                             .placeholder(R.drawable.logo)
                                             .build()
                                     ),
-                                    contentDescription = state.selectedRecipe.title,
+                                    contentDescription = selectedRecipe.title,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
                                 )
@@ -232,7 +239,7 @@ fun RecipeDetailsScreen(
                             }
                         } else {
                             LargeTopAppBar(
-                                title = { Text(state.selectedRecipe.title) },
+                                title = { Text(selectedRecipe.title) },
                                 navigationIcon = {
                                     IconButton(onClick = onNavigateBack) {
                                         Icon(
@@ -274,11 +281,16 @@ fun RecipeDetailsScreen(
                 Box(
                     modifier = Modifier
                         .padding(paddingValues)
+                        .floatingToolbarVerticalNestedScroll(
+                            expanded = expanded,
+                            onExpand = { expanded = true },
+                            onCollapse = { expanded = false },
+                        )
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        if (selectedIndex == 0) {
+                        if (selectedIndex.intValue == 0 || !canShowAppBar) {
                             Text(
-                                text = state.selectedRecipe.title,
+                                text = selectedRecipe.title,
                                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                                 modifier = Modifier.padding(
                                     start = 16.dp,
@@ -292,20 +304,14 @@ fun RecipeDetailsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = state.selectedRecipe.chefName ?: "Unknown Chef",
+                                    text = "Chef: ${selectedRecipe.chefName ?: "Unknown Chef"}",
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }
-                        if (!canShowAppBar) {
-                            Text(
-                                text = state.selectedRecipe.title,
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-                        }
                         PrimaryTabRow(
-                            selectedTabIndex = selectedIndex,
+                            selectedTabIndex = pagerState.currentPage,
                             divider = {
                                 Box(
                                     modifier = Modifier
@@ -340,18 +346,60 @@ fun RecipeDetailsScreen(
 
                         HorizontalPager(state = pagerState, modifier = Modifier.padding(16.dp)) {
                             when (it) {
-                                0 -> OverviewTabContent(recipe = state.selectedRecipe)
+                                0 -> OverviewTabContent(recipe = selectedRecipe)
                                 1 -> IngredientsTabContent(
-                                    recipe = state.selectedRecipe,
+                                    recipe = selectedRecipe,
                                     scrollBehavior = scrollBehavior
                                 )
 
                                 2 -> RecipeStepsContent(
-                                    recipe = state.selectedRecipe,
+                                    recipe = selectedRecipe,
                                     scrollBehavior = scrollBehavior
                                 )
                             }
                         }
+                    }
+
+                    if (!canShowAppBar) {
+                        VerticalFloatingToolbar(
+                            modifier = Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset),
+                            expanded = expanded,
+                            content = {
+                                FilledIconButton(onClick = { onShareRecipe() }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.to_forward),
+                                        contentDescription = "Share recipe",
+//                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .height(64.dp)
+//                                            .clip(CircleShape)
+//                                            .background(
+//                                                color = MaterialTheme.colorScheme.surface,
+//                                                shape = CircleShape
+//                                            )
+                                    )
+                                }
+                                IconButton(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            color = MaterialTheme.colorScheme.surface,
+                                            shape = CircleShape
+                                        ),
+                                    onClick = { isFavorite = !isFavorite },
+                                ) {
+                                    Icon(
+                                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                                        tint = favoriteColor,
+                                        modifier = Modifier.scale(scale)
+                                    )
+                                }
+
+                            }
+                        )
                     }
                 }
             }
