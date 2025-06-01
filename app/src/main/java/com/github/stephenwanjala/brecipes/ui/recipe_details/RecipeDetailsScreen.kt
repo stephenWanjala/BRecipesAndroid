@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -356,8 +357,9 @@ fun OverviewTabContent(recipe: Recipe) {
             text = recipe.description ?: "No description available.",
             style = MaterialTheme.typography.bodyLarge
         )
-        Row(
+        FlowRow(
             horizontalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             InfoChip(icon = Icons.Filled.Restaurant, text = recipe.serves ?: "N/A")
@@ -384,7 +386,6 @@ fun InfoChip(icon: ImageVector, text: String) {
 @Composable
 fun IngredientsTabContent(recipe: Recipe, scrollBehavior: TopAppBarScrollBehavior) {
     val options = listOf("Ingredients", "Description")
-    rememberCoroutineScope()
     val unCheckedIcons = listOf(Icons.Outlined.Restaurant, Icons.Outlined.RestaurantMenu)
     val checkedIcons = listOf(Icons.Filled.Restaurant, Icons.Filled.RestaurantMenu)
     var selectedIndex by remember { mutableIntStateOf(0) }
@@ -433,7 +434,7 @@ fun IngredientsTabContent(recipe: Recipe, scrollBehavior: TopAppBarScrollBehavio
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
                 ) {
-                    items(recipe.ingredientsDesc, key = { it.hashCode() }) { ingredient ->
+                    itemsIndexed (items = recipe.ingredientsDesc, key = { index, item -> "${index+item.hashCode()} desc"}) { index,ingredient ->
                         Text(text = "• $ingredient", style = MaterialTheme.typography.bodyLarge)
                     }
                 }
