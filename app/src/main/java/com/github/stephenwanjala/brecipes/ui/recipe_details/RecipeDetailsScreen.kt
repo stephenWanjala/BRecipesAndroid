@@ -88,7 +88,7 @@ import com.github.stephenwanjala.brecipes.domain.Recipe
 import com.github.stephenwanjala.brecipes.ui.RecipesState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RecipeDetailsScreen(
     onNavigateBack: () -> Unit,
@@ -132,56 +132,109 @@ fun RecipeDetailsScreen(
 
 
         if (state.selectedRecipe != null) {
-            Scaffold(topBar = {
-                AnimatedVisibility(canShowAppBar) {
-                    if (selectedIndex == 0) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(250.dp)
-                        ) {
-                            Image(
-                                painter = rememberAsyncImagePainter(
-                                    ImageRequest.Builder(LocalContext.current)
-                                        .data("https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/${state.selectedRecipe.image}")
-                                        .crossfade(true)
-                                        .error(R.drawable.logo)
-                                        .placeholder(R.drawable.logo)
-                                        .build()
-                                ),
-                                contentDescription = state.selectedRecipe.title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
+            Scaffold(
+                topBar = {
+                    AnimatedVisibility(canShowAppBar) {
+                        if (selectedIndex == 0) {
                             Box(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        brush = Brush.verticalGradient(
-                                            colors = listOf(
-                                                Color.Transparent,
-                                                Color.Black.copy(alpha = .5f),
-                                                MaterialTheme.colorScheme.onPrimary.copy(alpha = .5f),
-                                                Color.Transparent
-                                            ),
-                                            startY = 0f,
-                                            endY = 250f
+                                    .fillMaxWidth()
+                                    .height(250.dp)
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(
+                                        ImageRequest.Builder(LocalContext.current)
+                                            .data("https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/${state.selectedRecipe.image}")
+                                            .crossfade(true)
+                                            .error(R.drawable.logo)
+                                            .placeholder(R.drawable.logo)
+                                            .build()
+                                    ),
+                                    contentDescription = state.selectedRecipe.title,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                colors = listOf(
+                                                    Color.Transparent,
+                                                    Color.Black.copy(alpha = .5f),
+                                                    MaterialTheme.colorScheme.onPrimary.copy(alpha = .5f),
+                                                    Color.Transparent
+                                                ),
+                                                startY = 0f,
+                                                endY = 250f
+                                            )
                                         )
-                                    )
-                            )
+                                )
+                                LargeTopAppBar(
+                                    title = { /* No title here, it's below the image for Overview */ },
+                                    navigationIcon = {
+                                        IconButton(
+                                            onClick = onNavigateBack, modifier = Modifier
+                                                .clip(
+                                                    CircleShape
+                                                )
+                                                .background(
+                                                    color = MaterialTheme.colorScheme.surface,
+                                                    shape = CircleShape
+                                                )
+                                        ) {
+                                            Icon(
+                                                Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = "Back",
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    },
+                                    actions = {
+                                        IconButton(
+                                            onClick = { isFavorite = !isFavorite },
+                                            modifier = Modifier
+                                                .padding(8.dp)
+                                                .clip(CircleShape)
+                                                .background(
+                                                    color = MaterialTheme.colorScheme.surface,
+                                                    shape = CircleShape
+                                                )
+                                        ) {
+                                            Icon(
+                                                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                                                tint = favoriteColor,
+                                                modifier = Modifier.scale(scale)
+                                            )
+                                        }
+                                        IconButton(onClick = { onShareRecipe() }) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.to_forward),
+                                                contentDescription = "Share recipe",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        color = MaterialTheme.colorScheme.surface,
+                                                        shape = CircleShape
+                                                    )
+                                            )
+                                        }
+                                    },
+                                    colors = TopAppBarDefaults.topAppBarColors(
+                                        containerColor = Color.Transparent,
+                                        scrolledContainerColor = Color.Transparent
+                                    ),
+                                    modifier = Modifier.statusBarsPadding()
+                                )
+                            }
+                        } else {
                             LargeTopAppBar(
-                                title = { /* No title here, it's below the image for Overview */ },
+                                title = { Text(state.selectedRecipe.title) },
                                 navigationIcon = {
-                                    IconButton(
-                                        onClick = onNavigateBack, modifier = Modifier
-                                            .clip(
-                                                CircleShape
-                                            )
-                                            .background(
-                                                color = MaterialTheme.colorScheme.surface,
-                                                shape = CircleShape
-                                            )
-                                    ) {
+                                    IconButton(onClick = onNavigateBack) {
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowBack,
                                             contentDescription = "Back",
@@ -194,11 +247,6 @@ fun RecipeDetailsScreen(
                                         onClick = { isFavorite = !isFavorite },
                                         modifier = Modifier
                                             .padding(8.dp)
-                                            .clip(CircleShape)
-                                            .background(
-                                                color = MaterialTheme.colorScheme.surface,
-                                                shape = CircleShape
-                                            )
                                     ) {
                                         Icon(
                                             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
@@ -212,136 +260,97 @@ fun RecipeDetailsScreen(
                                             painter = painterResource(id = R.drawable.to_forward),
                                             contentDescription = "Share recipe",
                                             tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier
-                                                .size(32.dp)
-                                                .clip(CircleShape)
-                                                .background(
-                                                    color = MaterialTheme.colorScheme.surface,
-                                                    shape = CircleShape
-                                                )
+                                            modifier = Modifier.size(32.dp)
                                         )
                                     }
                                 },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = Color.Transparent,
-                                    scrolledContainerColor = Color.Transparent
-                                ),
-                                modifier = Modifier.statusBarsPadding()
+                                scrollBehavior = scrollBehavior
                             )
                         }
-                    } else {
-                        LargeTopAppBar(
-                            title = { Text(state.selectedRecipe.title) },
-                            navigationIcon = {
-                                IconButton(onClick = onNavigateBack) {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Back",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            },
-                            actions = {
-                                IconButton(
-                                    onClick = { isFavorite = !isFavorite },
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                                        tint = favoriteColor,
-                                        modifier = Modifier.scale(scale)
-                                    )
-                                }
-                                IconButton(onClick = { onShareRecipe() }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.to_forward),
-                                        contentDescription = "Share recipe",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(32.dp)
-                                    )
-                                }
-                            },
-                            scrollBehavior = scrollBehavior
-                        )
                     }
-                }
-            }) { paddingValues ->
+                },
+            ) { paddingValues ->
 
-                Column(modifier = Modifier.padding(paddingValues)) {
-                    if (selectedIndex == 0) {
-                        Text(
-                            text = state.selectedRecipe.title,
-                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                            modifier = Modifier.padding(
-                                start = 16.dp,
-                                end = 16.dp,
-                                top = 16.dp,
-                                bottom = 8.dp
-                            )
-                        )
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                Box(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        if (selectedIndex == 0) {
                             Text(
-                                text = state.selectedRecipe.chefName ?: "Unknown Chef",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
+                                text = state.selectedRecipe.title,
+                                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    end = 16.dp,
+                                    top = 16.dp,
+                                    bottom = 8.dp
+                                )
+                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = state.selectedRecipe.chefName ?: "Unknown Chef",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                        if (!canShowAppBar) {
+                            Text(
+                                text = state.selectedRecipe.title,
+                                style = MaterialTheme.typography.headlineMedium
                             )
                         }
-                    }
-                    if (!canShowAppBar) {
-                        Text(
-                            text = state.selectedRecipe.title,
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    }
-                    PrimaryTabRow(
-                        selectedTabIndex = selectedIndex,
-                        divider = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .shadow(
-                                        elevation = 4.dp,
-                                        spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                                        ambientColor = MaterialTheme.colorScheme.onSurface.copy(
-                                            alpha = 0.1f
+                        PrimaryTabRow(
+                            selectedTabIndex = selectedIndex,
+                            divider = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .shadow(
+                                            elevation = 4.dp,
+                                            spotColor = MaterialTheme.colorScheme.onSurface.copy(
+                                                alpha = 0.2f
+                                            ),
+                                            ambientColor = MaterialTheme.colorScheme.onSurface.copy(
+                                                alpha = 0.1f
+                                            )
                                         )
-                                    )
-                                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                            )
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                )
+                            }
+                        ) {
+                            tabs.forEachIndexed { index, title ->
+                                Tab(
+                                    selected = pagerState.currentPage == index,
+                                    onClick = {
+                                        scope.launch {
+                                            pagerState.animateScrollToPage(index)
+                                        }
+                                    },
+                                    text = { Text(text = title) }
+                                )
+                            }
                         }
-                    ) {
-                        tabs.forEachIndexed { index, title ->
-                            Tab(
-                                selected = pagerState.currentPage == index,
-                                onClick = {
-                                    scope.launch {
-                                        pagerState.animateScrollToPage(index)
-                                    }
-                                },
-                                text = { Text(text = title) }
-                            )
-                        }
-                    }
 
 
-                    HorizontalPager(state = pagerState, modifier = Modifier.padding(16.dp)) {
-                        when (it) {
-                            0 -> OverviewTabContent(recipe = state.selectedRecipe)
-                            1 -> IngredientsTabContent(
-                                recipe = state.selectedRecipe,
-                                scrollBehavior = scrollBehavior
-                            )
+                        HorizontalPager(state = pagerState, modifier = Modifier.padding(16.dp)) {
+                            when (it) {
+                                0 -> OverviewTabContent(recipe = state.selectedRecipe)
+                                1 -> IngredientsTabContent(
+                                    recipe = state.selectedRecipe,
+                                    scrollBehavior = scrollBehavior
+                                )
 
-                            2 -> RecipeStepsContent(
-                                recipe = state.selectedRecipe,
-                                scrollBehavior = scrollBehavior
-                            )
+                                2 -> RecipeStepsContent(
+                                    recipe = state.selectedRecipe,
+                                    scrollBehavior = scrollBehavior
+                                )
+                            }
                         }
                     }
                 }
@@ -434,7 +443,9 @@ fun IngredientsTabContent(recipe: Recipe, scrollBehavior: TopAppBarScrollBehavio
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
                 ) {
-                    itemsIndexed (items = recipe.ingredientsDesc, key = { index, item -> "${index+item.hashCode()} desc"}) { index,ingredient ->
+                    itemsIndexed(
+                        items = recipe.ingredientsDesc,
+                        key = { index, item -> "${index + item.hashCode()} desc" }) { index, ingredient ->
                         Text(text = "• $ingredient", style = MaterialTheme.typography.bodyLarge)
                     }
                 }

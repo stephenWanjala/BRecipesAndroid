@@ -1,7 +1,6 @@
 package com.github.stephenwanjala.brecipes.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -22,10 +21,13 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -34,10 +36,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.github.stephenwanjala.brecipes.domain.Recipe
 import kotlinx.coroutines.launch
 
@@ -50,8 +50,12 @@ fun RecipeListScreen(
     val lazyListState = rememberLazyListState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val coroutineScope = rememberCoroutineScope()
-
-
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(recipes.loadState) {
+        if (recipes.loadState.refresh is LoadState.Error) {
+            snackbarHostState.showSnackbar(message = "Error: " + (recipes.loadState.refresh as LoadState.Error).error.message)
+        }
+    }
 
     val showFab by remember {
         derivedStateOf {
@@ -85,6 +89,9 @@ fun RecipeListScreen(
                         )
                     }
                 }
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
             }
         ) { paddingValues ->
 
