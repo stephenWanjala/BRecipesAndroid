@@ -44,12 +44,8 @@ class RecipeViewModel @Inject constructor(
                 }
             }
 
-            RecipeAction.OnNavigateUp -> _state.update { it.copy(selectedRecipe = null, selectedTabIndex = 0) }
+            RecipeAction.OnNavigateUp -> _state.update { it.copy(selectedRecipe = null) }
         }
-    }
-
-    fun setSelectedTabIndex(index: Int) {
-        _state.update { it.copy(selectedTabIndex = index) }
     }
 }
 
@@ -57,7 +53,6 @@ class RecipeViewModel @Inject constructor(
 data class RecipesState(
     val isLoading: Boolean = false,
     val selectedRecipe: Recipe? = null,
-    val selectedTabIndex: Int = 0
 )
 
 sealed interface RecipeAction {
