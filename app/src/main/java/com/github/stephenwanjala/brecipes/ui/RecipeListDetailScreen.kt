@@ -52,7 +52,7 @@ fun RecipeListDetailScreen(
                         onNavigateBack = {
                             scope.launch {
                                 viewModel.onAction(RecipeAction.OnNavigateUp)
-                                navigator.navigateTo(ListDetailPaneScaffoldRole.List)
+                                navigator.navigateBack()
                             }
                         },
                         selectedRecipe = recipe,
