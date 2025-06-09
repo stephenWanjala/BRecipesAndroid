@@ -30,7 +30,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Restaurant
@@ -93,7 +92,6 @@ import coil3.request.placeholder
 import com.github.stephenwanjala.brecipes.R
 import com.github.stephenwanjala.brecipes.domain.Recipe
 import com.github.stephenwanjala.brecipes.ui.RecipeUtils
-import com.github.stephenwanjala.brecipes.ui.RecipesState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -289,7 +287,7 @@ fun RecipeDetailsScreen(
                         )
                 ) {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        if (selectedIndex.intValue == 0 || !canShowAppBar) {
+                        if (selectedIndex.intValue == 0 && canShowAppBar) {
                             Text(
                                 text = selectedRecipe.title,
                                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
@@ -300,16 +298,68 @@ fun RecipeDetailsScreen(
                                     bottom = 8.dp
                                 )
                             )
-                            Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                        }
+                        if (selectedIndex.intValue == 0 && !canShowAppBar) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(250.dp)
                             ) {
-                                Text(
-                                    text = "Chef: ${selectedRecipe.chefName ?: "Unknown Chef"}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold
+                                Image(
+                                    painter = rememberAsyncImagePainter(
+                                        ImageRequest.Builder(LocalContext.current)
+                                            .data("${RecipeUtils.IMAGES_BASE_URL}${selectedRecipe.image}")
+                                            .crossfade(true)
+                                            .error(R.drawable.logo)
+                                            .placeholder(R.drawable.logo)
+                                            .build()
+                                    ),
+                                    contentDescription = selectedRecipe.title,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
                                 )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                colors = listOf(
+                                                    Color.Transparent,
+                                                    Color.Black.copy(alpha = 0.5f)
+                                                ),
+                                                startY = 0f,
+                                                endY = 250f
+                                            )
+                                        )
+                                )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp)
+                                        .align(Alignment.BottomStart),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.Start
+                                ) {
+                                    Text(
+                                        text = selectedRecipe.title,
+                                        style = MaterialTheme.typography.headlineMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        ),
+                                        modifier = Modifier.padding(
+                                            bottom = 4.dp
+                                        )
+                                    )
+                                    Text(
+                                        text = "Chef: ${selectedRecipe.chefName ?: "Unknown Chef"}",
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            color = Color.White.copy(alpha = 0.8f)
+                                        ),
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
                             }
+
                         }
                         PrimaryTabRow(
                             selectedTabIndex = pagerState.currentPage,
@@ -363,22 +413,18 @@ fun RecipeDetailsScreen(
 
                     if (!canShowAppBar) {
                         VerticalFloatingToolbar(
-                            modifier = Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset),
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .offset(x = -ScreenOffset),
                             expanded = expanded,
                             content = {
                                 FilledIconButton(onClick = { onShareRecipe() }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.to_forward),
                                         contentDescription = "Share recipe",
-//                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier
                                             .padding(8.dp)
                                             .height(64.dp)
-//                                            .clip(CircleShape)
-//                                            .background(
-//                                                color = MaterialTheme.colorScheme.surface,
-//                                                shape = CircleShape
-//                                            )
                                     )
                                 }
                                 IconButton(
